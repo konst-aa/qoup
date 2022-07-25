@@ -53,4 +53,21 @@ defmodule Qoup.Game.State do
         |> List.flatten()
     end
   end
+
+  # def assasinate(Player.playerid(), Player.playerid()) do
+    # check if challeged
+    # lose_card(...)
+  # end
+
+  @spec steal(Player.playerid(), Player.playerid(), ) :: integer()
+  def stolen_coins(Player.playerid(), integer()) do
+    # player loses card
+    :ok
+  end
+
+  @spec lose_card(Player.playerid()) :: :ok
+  def lose_card(Player.playerid()) do
+    # player loses card
+    :ok
+  end
 end
