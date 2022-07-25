@@ -55,13 +55,23 @@ defmodule Qoup.Game.State do
   end
 
   # def assasinate(Player.playerid(), Player.playerid()) do
-    # check if challeged
-    # lose_card(...)
+  # check if challeged
+  # lose_card(...)
   # end
 
-  @spec steal(Player.playerid(), Player.playerid(), ) :: integer()
-  def stolen_coins(Player.playerid(), integer()) do
-    # player loses card
+  @spec steal(Player.playerid(), Player.playerid(), Player.player_map()) :: :ok
+  def steal(player_id, target_id, player_map) do
+    player = player_map.get[player_id]
+    target = player_map.get[target_id]
+
+    if target.coins >= 2 do
+      player.coins = player.coins + 2
+      target.coins = target.coins - 2
+    else
+      player.coins = player.coins + target.coins
+      target.coins = 0
+    end
+
     :ok
   end
 
