@@ -59,23 +59,32 @@ defmodule Qoup.Game.State do
   # lose_card(...)
   # end
 
+  @spec income(Player.playerid(), State.t()) :: State.t()
+  def income(player_id,  %{players: player_map} = state) do
+    player = Map.get(player_map, player_id)
+    revised_player = (player, :roles, :coins+1, :challenging?)
+    player_map^ = Map.put(player_map, player_id, Map.put(revised_player))
+    state
+  end
+
   @spec coup(Player.playerid(), Player.playerid(), State.t()) :: State.t()
   def coup(player_id, target_id, %{players: player_map} = state) do
-    player = player_map.get[player_id]
+    player = Map.get(player_map, player_id)
 
     if player.coins >= 7 do
-      player.coins = player.coins - 7
+      revised_player = (player, :roles, :coins-7, :challenging?)
+      player_map^ = Map.put(player_map, player_id, Map.put(revised_player))
       lose_card(target_id)
     else
-      # message player they don't have enough coins
+      # message player that they don't have enough coins
       state
     end
   end
 
   @spec steal(Player.playerid(), Player.playerid(), State.t()) :: State.t()
   def steal(player_id, target_id, %{players: player_map} = state) do
-    player = player_map.get[player_id]
-    target = player_map.get[target_id]
+    player = Map.get(player_map, player_id)
+    target = Map.get(player_map, target_id)
 
     if target.coins >= 2 do
       player.coins = player.coins + 2
