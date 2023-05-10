@@ -1,0 +1,3 @@
+[submodule "nostrum"]
+	path = nostrum
+	url = git@github.com:Kraigie/nostrum.git
