@@ -9,6 +9,7 @@ defmodule Qoup.Structs.Player do
   @type action_tuple :: {Player.player_id(), Player.action()}
   @type t :: %__MODULE__{
           roles: [role()],
+          lost_roles: [role()],
           coins: integer(),
           challenging?: boolean(),
           dm: Nostrum.Struct.Channel.id()

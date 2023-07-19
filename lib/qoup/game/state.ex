@@ -18,22 +18,7 @@ defmodule Qoup.Game.State do
             | {:resolve_stab, Player.action_tuple()}
         }
 
-  @type player_id :: Nostrum.Struct.User.id()
-  @type player_map :: %{
-          Player.player_id() => Player.t()
-        }
-
-  @type role :: :ambassador | :assassin | :captain | :contessa | :duke
-  @type action :: :income | :foreign_aid | :coup | :tax | :exchange | :assassinate | :steal
-  @type action_tuple :: {Player.player_id(), Player.action()}
-
-  @type player :: %{
-          roles: [role()],
-          coins: integer(),
-          challenging?: boolean(),
-          dm: Nostrum.Struct.Channel.id()
-        }
-
+  # Initializes game
   @spec init(Game.start_args()) :: {:ok, t()}
   def init(%{player_ids: player_ids, expansion: expansion}) do
     {deck, players} =
@@ -41,6 +26,7 @@ defmodule Qoup.Game.State do
       |> make_deck()
       |> make_players(player_ids)
 
+    # Initializes state
     state = %__MODULE__{
       players: players,
       deck: deck
@@ -49,22 +35,14 @@ defmodule Qoup.Game.State do
     {:ok, state}
   end
 
-  @spec make_players(deck(), [player_id()]) :: {deck(), player_map()}
-  defp make_players(deck, player_ids) do
-    t = Enum.chunk_every(deck, 2) |> Enum.zip(player_ids)
-    for {roles, _id} <- t do
-      %Player{roles: roles, coins: 2, challenging?: false, dm: :unknown}
-    end
-
-    nil
-  end
-
+  # Builds deck based on expansion
   @spec make_deck(String.t(), [String.t()]) :: deck()
   defp make_deck(expansion, custom_layout \\ []) do
     default_roles = [:ambassador, :assassin, :captain, :contessa, :duke]
 
-    # for the future!
+    # for the future! (needs updating then)
     case expansion do
+      # Do stuff when there's an expansion
       "custom" ->
         custom_layout
         |> Enum.chunk_every(2)
@@ -73,10 +51,67 @@ defmodule Qoup.Game.State do
         end)
         |> List.flatten()
 
+      # When no expansion, add three of every card to deck
       _ ->
         default_roles
         |> Enum.map(fn role -> List.duplicate(role, 3) end)
         |> List.flatten()
     end
+  end
+
+  # def assasinate(Player.playerid(), Player.playerid()) do
+  # check if challeged
+  # lose_card(...)
+  # end
+
+  # One player performs income
+  @spec income(Player.playerid(), State.t()) :: State.t()
+  def income(player_id,  %{players: player_map} = state) do
+    player = Map.get(player_map, player_id)
+    # Gives them one coin
+    revised_player = (player, :roles, :coins+1, :challenging?)
+    player_map^ = Map.put(player_map, player_id, Map.put(revised_player))
+    # Returns new state
+    state
+  end
+
+  # One player coups another
+  @spec coup(Player.playerid(), Player.playerid(), State.t()) :: State.t()
+  def coup(player_id, target_id, %{players: player_map} = state) do
+    player = Map.get(player_map, player_id)
+
+    if player.coins >= 7 do
+      revised_player = (player, :roles, :coins-7, :challenging?)
+      player_map^ = Map.put(player_map, player_id, Map.put(revised_player))
+      # Returns state after they lose a card
+      lose_card(target_id)
+    else
+      # message player that they don't have enough coins
+      # Returns old state
+      state
+    end
+  end
+
+  # One player steals from another
+  @spec steal(Player.playerid(), Player.playerid(), State.t()) :: State.t()
+  def steal(player_id, target_id, %{players: player_map} = state) do
+    player = Map.get(player_map, player_id)
+    target = Map.get(player_map, target_id)
+    # Removes coins
+    if target.coins >= 2 do
+      player.coins = player.coins + 2
+      target.coins = target.coins - 2
+    else
+      player.coins = player.coins + target.coins
+      target.coins = 0
+    end
+    # Returns new state
+    state
+  end
+
+  @spec lose_card(Player.playerid()) :: State.t()
+  def lose_card(Player.playerid()) do
+    # player loses card
+    State.t()
   end
 end
