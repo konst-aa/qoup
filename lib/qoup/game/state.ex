@@ -6,16 +6,32 @@ defmodule Qoup.Game.State do
 
   @type deck :: [Player.role()]
   @type t :: %__MODULE__{
-          players: Player.player_map(),
-          seating: [Player.player_id()],
+          players: player_map(),
+          seating: [player_id()],
           deck: deck(),
-          turns: [Player.player_id()],
+          turns: [player_id()],
           status:
             :turn
             | {:challenge | :block | :lose_challenge | :still_show, Player.action_tuple(),
-               [Player.player_id()]}
+               [player_id()]}
             | :resolve_ambassador
             | {:resolve_stab, Player.action_tuple()}
+        }
+
+  @type player_id :: Nostrum.Struct.User.id()
+  @type player_map :: %{
+          Player.player_id() => Player.t()
+        }
+
+  @type role :: :ambassador | :assassin | :captain | :contessa | :duke
+  @type action :: :income | :foreign_aid | :coup | :tax | :exchange | :assassinate | :steal
+  @type action_tuple :: {Player.player_id(), Player.action()}
+
+  @type player :: %{
+          roles: [role()],
+          coins: integer(),
+          challenging?: boolean(),
+          dm: Nostrum.Struct.Channel.id()
         }
 
   @spec init(Game.start_args()) :: {:ok, t()}
@@ -23,7 +39,7 @@ defmodule Qoup.Game.State do
     {deck, players} =
       expansion
       |> make_deck()
-      |> Player.make_players(player_ids)
+      |> make_players(player_ids)
 
     state = %__MODULE__{
       players: players,
@@ -31,6 +47,16 @@ defmodule Qoup.Game.State do
     }
 
     {:ok, state}
+  end
+
+  @spec make_players(deck(), [player_id()]) :: {deck(), player_map()}
+  defp make_players(deck, player_ids) do
+    t = Enum.chunk_every(deck, 2) |> Enum.zip(player_ids)
+    for {roles, _id} <- t do
+      %Player{roles: roles, coins: 2, challenging?: false, dm: :unknown}
+    end
+
+    nil
   end
 
   @spec make_deck(String.t(), [String.t()]) :: deck()

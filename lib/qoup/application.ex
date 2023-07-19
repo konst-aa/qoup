@@ -6,7 +6,8 @@ defmodule Qoup.Application do
   @spec start(any, any) :: {:error, any} | {:ok, pid}
   def start(_type, _args) do
     children = [
-      Qoup.Consumer
+      Qoup.Consumer,
+      Qoup.Lobbies
       # Qoup.LobbyRegistry
     ]
 

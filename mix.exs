@@ -22,9 +22,8 @@ defmodule Qoup.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:nostrum, "~> 0.6"}
+      {:nostrum, "~> 0.8"}
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
-      {:nostrum, path: "nostrum"}
     ]
   end
 end

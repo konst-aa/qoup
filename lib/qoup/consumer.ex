@@ -28,14 +28,20 @@ defmodule Qoup.Consumer do
     end
   end
 
+
   @spec dispatch(Nostrum.Struct.Message.t()) :: :ok | :ignore
   defp dispatch(msg) do
     case hack(msg) do
       # super user commands
       # normal user commands
-      {">ping", _, _} -> 
+      {">ping", _, _} ->
         IO.puts("hello!")
         Api.create_message(msg.channel_id, "pong!")
+      {">start", _, _} ->
+        IO.puts("!?!?")
+        Api.create_message(msg.channel_id, "creating pod!")
+        Qoup.Lobbies.start_lobby(msg)
+
       _ -> :ignore
     end
   end
